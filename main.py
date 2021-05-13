@@ -1,18 +1,3 @@
-'''# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/'''
 from queue import Queue
 import json
 from flask import Flask, request, jsonify, make_response, render_template, session
@@ -56,7 +41,6 @@ class Job(db.Document):
 
 @app.route('/submit-job', methods=['PUT'])
 def submit_job():
-    ## Get request body params (from request.data)
     record = json.loads(request.data)
     job_id = str(uuid.uuid1().int)
     user_id = record['user_id']
@@ -64,12 +48,6 @@ def submit_job():
     data_source_protocol = record['data_source_protocol']
     text_query = record['text_query']
     url = record['url']
-    #print(urgency)
-    """result_id = record['result_id']
-    ingestion_status = record['ingestion_status']
-    dataset_location = record['dataset_location']"""
-    #user = User.objects(Q(username=username) | Q(email=email)).first()
-    ## Make sure no user registered with same email & username
     if data_source_protocol.lower() not in ['jdbc', 'odbc', 's3', 'looker']:
         return make_response(
             'This protocol is not yet supported, please choose of either [jdbc, odbc, s3, looker], and try again',
@@ -148,7 +126,6 @@ def submit_job():
                      dataset_location = ""
     )
     job_to_save.save()
-    ## Return success message with status code 200
     return make_response(
     {'message': 'Job successfully Registered!', 'Job ID': job_id,},
     200,
@@ -158,10 +135,8 @@ def submit_job():
 
 @app.route('/ingestor-request-job', methods=['GET'])
 def request_job():
-    ## Get request body params (from request.data)
     record = json.loads(request.data)
     data_source_protocol = record['data_source_protocol']
-    ## retrieve job from relevant queue
     if(data_source_protocol.lower() == 'jdbc'):
         print('test here')
         if(urgent_jdbc.empty()):
