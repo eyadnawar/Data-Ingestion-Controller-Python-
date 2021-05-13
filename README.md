@@ -1,4 +1,5 @@
-#Description
+# Description
+
 This system is a ***data ingestor controller*** which is a sub-system needed to serve as a reliable intermediary between the user-facing 
 applications and the dataset ingestors.
 
@@ -26,7 +27,7 @@ provided earlier. It should produce a response with the ingestion status of eith
 * Respond to a request from an insight generation system asking for the dataset produced for a job, given 
 its ID.
 
-##Building, Testing, Running, and Connecting to the Service
+## Building, Testing, Running, and Connecting to the Service
 
 This system is implemented in Python's Flask. To build, just clone the repo
 by running the following command in Git Bash in the appropriate directory:
