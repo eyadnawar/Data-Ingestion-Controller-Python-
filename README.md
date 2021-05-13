@@ -32,7 +32,7 @@ its ID.
 This system is implemented in Python's Flask. To build, just clone the repo
 by running the following command in Git Bash in the appropriate directory:
 
-``git clone <link to repo>``
+``git clone https://github.com/eyadnawar/kausa-task.git``
 
 In your favorite IDE, you can open the terminal and run `flask run` or just open the `main.py` file, right click and choose build and run. It will run on the localhost.
 
