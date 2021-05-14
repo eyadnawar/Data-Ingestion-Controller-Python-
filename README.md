@@ -34,7 +34,7 @@ by running the following command in Git Bash in the appropriate directory:
 
 ``git clone https://github.com/eyadnawar/kausa-task.git``
 
-Open the terminal and activate the virtual environment via the command `.\venv\Scripts\activate.bat` then install the necessary packages in the /hyperlink/requirements.txt/hyperlink/ run `pip install -r requirements.txt` and finally run `flask run <file_location>` or just open the `main.py` file, right click and choose build and run. It will run on the localhost.
+Open the terminal and activate the virtual environment via the command `.\venv\Scripts\activate.bat` then install the necessary packages in the [requirements.txt] run `pip install -r requirements.txt` and finally run `flask run <file_location>` or just open the `main.py` file, right click and choose build and run. It will run on the localhost.
 
 To conect to the service, there are 5 endpoints that correspond to each of the aforementioned operations. These endpoints are:
 
