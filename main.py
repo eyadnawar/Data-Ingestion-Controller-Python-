@@ -75,67 +75,20 @@ def submit_job():
             'This protocol is not yet supported, please choose of either [jdbc, odbc, s3, looker], and try again',
             400,
         )
-    if (data_source_protocol.lower() == 'jdbc'):
-        if (urgency == True):
-            global urgent_jdbc
-            urgent_jdbc.put({
-                'job_id': job_id,
-                'text_query': record['text_query'],
-                'url': record['url']
-            })
-        else:
-            global jdbc
-            jdbc.put({
-                'job_id': job_id,
-                'text_query': record['text_query'],
-                'url': record['url']
-            })
-    elif (data_source_protocol.lower() == 'odbc'):
-        if (urgency == True):
-            global urgent_odbc
-            urgent_odbc.put({
-                'job_id': job_id,
-                'text_query': record['text_query'],
-                'url': record['url']
-            })
-        else:
-            global odbc
-            odbc.put({
-                'job_id': job_id,
-                'text_query': record['text_query'],
-                'url': record['url']
-            })
-    elif (data_source_protocol.lower() == 's3'):
-        if (urgency == True):
-            global urgent_s3
-            urgent_s3.put({
-                'job_id': job_id,
-                'text_query': record['text_query'],
-                'url': record['url']
-            })
-        else:
-            global s3
-            s3.put({
-                'job_id': job_id,
-                'text_query': record['text_query'],
-                'url': record['url']
-            })
+    if(urgency == True):
+        global urgent_queue
+        urgent_queue[data_source_protocol.lower()].put({
+            'job_id': job_id,
+            'text_query': text_query,
+            'url': url
+        })
     else:
-        if (urgency == True):
-            global urgent_looker
-            urgent_looker.put({
-                'job_id': job_id,
-                'text_query': record['text_query'],
-                'url': record['url']
-            })
-        else:
-            global looker
-            looker.put({
-                'job_id': job_id,
-                'text_query': record['text_query'],
-                'url': record['url']
-            })
-
+        global non_urgent_queue
+        non_urgent_queue[data_source_protocol.lower()].put({
+            'job_id': job_id,
+            'text_query': text_query,
+            'url': url
+        })
 
     job_to_save = Job(job_id = job_id,
                      user_id = record['user_id'],
@@ -162,75 +115,23 @@ def request_job():
     record = json.loads(request.data)
     data_source_protocol = record['data_source_protocol']
     ## retrieve job from relevant queue
-    if(data_source_protocol.lower() == 'jdbc'):
-        print('test here')
-        if(urgent_jdbc.empty()):
-            if(jdbc.empty()):
-                return make_response(
-                    'No jdbc type jobs available for ingestion',
-                    400
-                )
-            else:
-                return make_response(
-                    {'job': jdbc.get_nowait()},
-                    200
-                )
-        else:
+    if(urgent_queue[data_source_protocol.lower()].empty()):
+        if(non_urgent_queue[data_source_protocol.lower()].empty()):
             return make_response(
-                {'job': urgent_jdbc.get_nowait()},
-                200
+                'There are no %s type jobs available' %(data_source_protocol),
+            400
             )
-    elif (data_source_protocol.lower() == 'odbc'):
-        if (urgent_odbc.empty()):
-            if (odbc.empty()):
-                return make_response(
-                    'No odbc type jobs available for ingestion',
-                    400
-                )
-            else:
-                return make_response(
-                    {'job': odbc.get_nowait()},
-                    200
-                )
         else:
             return make_response(
-                {'job': urgent_odbc.get_nowait()},
-                200
-            )
-    elif (data_source_protocol.lower() == 's3'):
-        if (urgent_s3.empty()):
-            if (s3.empty()):
-                return make_response(
-                    'No s3 type jobs available for ingestion',
-                    400
-                )
-            else:
-                return make_response(
-                    {'job': s3.get_nowait()},
-                    200
-                )
-        else:
-            return make_response(
-                {'job': urgent_s3.get_nowait()},
+                non_urgent_queue[data_source_protocol.lower()].get_nowait(),
                 200
             )
     else:
-        if (urgent_looker.empty()):
-            if (looker.empty()):
-                return make_response(
-                    'No looker type jobs available for ingestion',
-                    400
-                )
-            else:
-                return make_response(
-                    {'job': looker.get_nowait()},
-                    200
-                )
-        else:
-            return make_response(
-                {'job': urgent_looker.get_nowait()},
-                200
-            )
+        #print("herreeeeeee" + urgent_queue[data_source_protocol.lower()].get_nowait()['job_id'])
+        return make_response(
+            urgent_queue[data_source_protocol.lower()].get_nowait(),
+            200
+        )
 
 @app.route('/post-ingestion-result', methods=['POST'])
 def update_data_ingestion_result():
@@ -294,22 +195,11 @@ def request_dataset():
         )
 
 if __name__ == "__main__":
-    global jdbc
-    global urgent_jdbc
-    global odbc
-    global urgent_odbc
-    global s3
-    global urgent_s3
-    global looker
-    global urgent_looker
-
-    jdbc = Queue(maxsize=10)
-    urgent_jdbc = Queue(maxsize=10)
-    odbc = Queue(maxsize=10)
-    urgent_odbc = Queue(maxsize=10)
-    s3 = Queue(maxsize=10)
-    urgent_s3 = Queue(maxsize=10)
-    looker = Queue(maxsize=10)
-    urgent_looker = Queue(maxsize=10)
+    global supported_protocols
+    global urgent_queue
+    global non_urgent_queue
+    supported_protocols = ['jdbc', 'odbc', 's3', 'looker']
+    urgent_queue = {k: Queue(maxsize=10) for k in supported_protocols}
+    non_urgent_queue = {k: Queue(maxsize=10) for k in supported_protocols}
 
     app.run(debug=True)
