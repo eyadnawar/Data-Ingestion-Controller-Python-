@@ -138,7 +138,6 @@ def request_job():
     record = json.loads(request.data)
     data_source_protocol = record['data_source_protocol']
     if(data_source_protocol.lower() == 'jdbc'):
-        print('test here')
         if(urgent_jdbc.empty()):
             if(jdbc.empty()):
                 return make_response(
