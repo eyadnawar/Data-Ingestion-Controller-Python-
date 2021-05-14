@@ -40,11 +40,11 @@ To conect to the service, there are 5 endpoints that correspond to each of the a
 
 * `/submit-job` which is a `PUT` method sent to the controller by the user-facing application. The controller receives the following parameters in the body of the request:
 
-    1. `user_id`: String  
-    2. `urgency`: Boolean
-    3. `data_source_protocol`: String
-    4. `text_query`: String
-    5. `url`: String 
+    1. `user_id`: String                      ### The user ID. The relation between a user and an ingestion job is one-to-many
+    2. `urgency`: Boolean                     ### wether or not the ingestion job is of urgent priority
+    3. `data_source_protocol`: String         ### only one of (jdbc|odbc|s3|looker)
+    4. `text_query`: String                   ### The query to be executed to retrieve the dataset
+    5. `url`: String                          ### The url where the aforementioned query will be executed
        
         and returns a response with the Job ID created
 
@@ -52,15 +52,15 @@ To conect to the service, there are 5 endpoints that correspond to each of the a
 * `/ingestor-request-job` which is a `GET` method sent by the controller to the requesting data ingestor. The controller recieves the `data_source_protocol` as parameter in the body of the GET request, and returns the following in the response:
 
     1. `job_id`: String
-    2. `text_query`: String  {The query to be executed to retrieve the dataset}
-    3. `url`: String   {The url where the query will be executed to retrieve the dataset}
+    2. `text_query`: String                   ### The query to be executed to retrieve the dataset
+    3. `url`: String                          ### The url where the query will be executed to retrieve the dataset
 
 
 * `/post-ingestion-result` which is a `POST` method that is sent to the controller by a data ingestor to inform the former about the data ingestion result of a specific job, and the body of the request contains the following parameters:
 
     1. `job_id`: String
-    2. `ingestion_status`: String       {Success/failure}
-    3. `dataset_location`: String       {uri for the dataset location on the disk (metadata)}
+    2. `ingestion_status`: String            ### Success/failure
+    3. `dataset_location`: String            ### uri for the dataset location on the disk (metadata)
 
 
 * `/enquire-about-job` which is a `GET` method sent to the controller by the user-facing application. The controller receives the `job_id` as a parameter in the body of the request, searches the database for the job with the matching `job_id`, and checks the `ingestion_status` of that job. The controller responds with `Success/Failure/Pending`
